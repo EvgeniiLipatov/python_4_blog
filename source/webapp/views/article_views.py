@@ -87,12 +87,11 @@ class ArticleCreateView(CreateView):
                     tag = Tag.objects.create(name=tag)
                 else:
                     tag = Tag.objects.get(name=tag)
-                    print(tag)
                 self.article.tags.add(tag)
 
 
     def form_valid(self, form):
-        self.tags = list(form.cleaned_data['tags'].split())
+        self.tags = list(form.cleaned_data['tags'].replace(" ","").strip().split(","))
         self.article = Article.objects.create(title=form.cleaned_data['title'],
                                              text=form.cleaned_data['text'],
                                              author=form.cleaned_data['author'],
