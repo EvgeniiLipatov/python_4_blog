@@ -3,9 +3,10 @@ from webapp.models import Article, Comment, STATUS_ACTIVE
 
 
 class ArticleForm(forms.ModelForm):
+    tags = forms.CharField(max_length=100, label = 'Tags', required=False)
     class Meta:
         model = Article
-        exclude = ['created_at', 'updated_at']
+        exclude = ['created_at', 'updated_at', 'tags']
 
 
 class CommentForm(forms.ModelForm):
