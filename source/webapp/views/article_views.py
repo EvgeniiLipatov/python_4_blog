@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
@@ -91,7 +92,13 @@ class ArticleCreateView(CreateView):
 
 
     def form_valid(self, form):
-        self.tags = list(form.cleaned_data['tags'].replace(" ","").strip().split(","))
+        #self.tags = list(form.cleaned_data['tags'].strip().split(","))
+        self.tags = form.cleaned_data['tags']
+        if not ',' in self.tags:
+            self.tags = list(form.cleaned_data['tags'].strip().split(" "))
+        else:
+            self.tags = list(form.cleaned_data['tags'].strip().split(","))
+
         self.article = Article.objects.create(title=form.cleaned_data['title'],
                                              text=form.cleaned_data['text'],
                                              author=form.cleaned_data['author'],
@@ -109,6 +116,31 @@ class ArticleUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse('article_view', kwargs={'pk': self.object.pk})
+
+    def add_tag(self):
+        if self.tags:
+            oldtags = self.object.tags.all()
+            if oldtags:
+                for t in oldtags:
+                    self.object.tags.remove(t)
+            for tag in self.tags:
+                if not Article.objects.filter(tags__name=tag):
+                    tag = Tag.objects.create(name=tag)
+                else:
+                    tag = Tag.objects.get(name=tag)
+                self.object.tags.add(tag)
+
+    def form_valid(self, form):
+        self.object = self.get_object()
+        self.tags = form.cleaned_data['tags']
+        if not ',' in self.tags:
+            self.tags = list(form.cleaned_data['tags'].strip().split(" "))
+        else:
+            self.tags = list(form.cleaned_data['tags'].strip().split(","))
+        print(self.tags)
+        self.add_tag()
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class ArticleDeleteView(DeleteView):
