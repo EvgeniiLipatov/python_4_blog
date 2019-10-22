@@ -21,6 +21,9 @@
                 <a href="{% url 'article_update' article.pk %}">Edit</a>
                 <a href="{% url "article_delete" article.pk %}">Delete</a>
             </p>
+            <p>
+                {{ article.tags.get_queryset}}
+            </p>
             <hr/>
         {% endfor %}
         {% if is_paginated %}
