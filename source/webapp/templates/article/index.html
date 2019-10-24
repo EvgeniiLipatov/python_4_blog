@@ -20,9 +20,11 @@
                 <a href="{% url 'article_view' article.pk %}">More...</a>
                 <a href="{% url 'article_update' article.pk %}">Edit</a>
                 <a href="{% url "article_delete" article.pk %}">Delete</a>
-            </p>
+            </p
             <p>
-                {{ article.tags.get_queryset}}
+            {% for tag in article.tags.all %}
+                <a href="{% url 'index' %}?tag={{ tag.name }}">{{ tag }}</a>
+            {% endfor %}
             </p>
             <hr/>
         {% endfor %}

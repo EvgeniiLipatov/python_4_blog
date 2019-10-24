@@ -22,6 +22,7 @@ class IndexView(ListView):
     def get(self, request, *args, **kwargs):
         self.form = self.get_search_form()
         self.search_value = self.get_search_value()
+        self.param = self.request.GET.get('tag')
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -32,11 +33,16 @@ class IndexView(ListView):
                 | Q(author__icontains=self.search_value)
                 | Q(tags__name__iexact=self.search_value)
             )
+            return queryset
+        if self.param:
+            queryset = queryset.filter(Q(tags__name__iexact=self.param))
+            return queryset
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context['form'] = self.form
+
         if self.search_value:
             context['query'] = urlencode({'search': self.search_value})
         context['archived_articles'] = self.get_archived_articles()
